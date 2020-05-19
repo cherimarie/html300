@@ -28,6 +28,9 @@
                             </div>
                         </ul>
                         <ul class="side__list"  data-title="Europe">
+                            <!-- TODO: change this to a checkbox, when unselected, toggle this.area back to '' -->
+                            <button v-on:click="areaFilter('europe')">Europe</button>
+
                             <div v-for="(card, idx) in decks" v-bind:key="idx">
                                 <div v-if='card.area == "Europe"'>
                                     <li class="side__item">
@@ -68,7 +71,8 @@
 import { decks } from '../util.js'
 
 import Card from '@/components/Card.vue'
-
+// Note: might be able to move Searchbar back into its own child component and have it pass search info back up to this one:
+// https://vuejs.org/v2/guide/components.html#Listening-to-Child-Components-Events
 export default {
     name: 'Trips',
     components: {
@@ -77,13 +81,40 @@ export default {
     data() {
         return {
           search: '',
-          decks: decks
+          area: '',
+          decks: decks,
+          areaFilter: function(area){
+            console.log("area filter with ", area)
+            this.area = area
+          }
         }
     },
     computed: {
       flist: function(){
         return this.decks.filter(function (litem) {
-            return (litem.area != null) && (litem.location.toLowerCase().includes(this.search.toLowerCase()))
+          // if both search & area have been set, use && in conditional
+          // if only search has a value, only use it
+          // else if area, only use it
+          let litemAreaSet = litem.area != null
+          let areaSet = this.area != ''
+          let searchSet = this.search != ''
+
+          if (!litemAreaSet){
+            return false
+          }
+
+          let includesSearchTerm = (litem.location.toLowerCase().includes(this.search.toLowerCase()))
+          let isInArea = (litem.area.toLowerCase() === this.area.toLowerCase())
+
+          if (areaSet && searchSet){
+            // check that both area & search match
+            return includesSearchTerm && isInArea
+          } else if(areaSet){
+            return isInArea
+          } else if(searchSet){
+            return includesSearchTerm
+          }
+          return true
         }, this)
       }
     }
