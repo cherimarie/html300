@@ -21,10 +21,6 @@
 
 import { decks } from '../util.js'
 
-var flist = decks.filter(function (litem) {
-    return litem.area != null;
-})
-
 import Card from '@/components/Card.vue'
 import Searchbar from '@/components/Searchbar.vue'
 
@@ -36,8 +32,15 @@ export default {
     },
     data() {
         return {
-            flist: flist
+
         }
+    },
+    computed: {
+      flist: function(){
+        return decks.filter(function (litem) {
+            return litem.area != null;
+        })
+      }
     }
 };
 </script>
